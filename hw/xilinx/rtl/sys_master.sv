@@ -244,8 +244,8 @@ module sys_master
         .locked   ( ),
         .clk_100  ( ),
         .clk_50   ( ),
-        .clk_20   ( ),
-        .clk_10   ( soc_clk_o )
+        .clk_20   ( soc_clk_o ),
+        .clk_10   (  )
     );
 
     // JTAG2AXI Master
