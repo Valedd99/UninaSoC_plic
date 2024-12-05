@@ -243,9 +243,9 @@ module sys_master
         .resetn   ( sys_resetn_o ),
         .locked   ( ),
         .clk_100  ( ),
-        .clk_50   ( soc_clk_o   ),
+        .clk_50   ( ),
         .clk_20   ( ),
-        .clk_10   ( )
+        .clk_10   ( soc_clk_o )
     );
 
     // JTAG2AXI Master
