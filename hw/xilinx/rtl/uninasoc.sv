@@ -648,7 +648,15 @@ module uninasoc (
         .s_axi_rresp    ( xbar_to_plic_axi_rresp    ), // output wire [1 : 0] s_axi_rresp
         .s_axi_rlast    ( xbar_to_plic_axi_rlast    ), // output wire s_axi_rlast
         .s_axi_rvalid   ( xbar_to_plic_axi_rvalid   ), // output wire s_axi_rvalid
-        .s_axi_rready   ( xbar_to_plic_axi_rready   ) // input wire s_axi_rready
+        .s_axi_rready   ( xbar_to_plic_axi_rready   ), // input wire s_axi_rready
+        .req_addr_o     (                           ),
+        .req_write_o    (                           ),
+        .req_wdata_o    (                           ),
+        .req_wstrb_o    (                           ),
+        .req_valid_o    (                           ),
+        .rsp_rdata_o    (                           ),
+        .rsp_error_o    (                           ),
+        .rsp_ready_o    (                           )
     );
 
 

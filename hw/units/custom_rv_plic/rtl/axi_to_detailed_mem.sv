@@ -193,6 +193,7 @@ module axi_to_detailed_mem #(
     end else if (axi_req_i.ar_valid) begin
       rd_meta_d = '{
         addr:   addr_t'(axi_pkg::aligned_addr(axi_req_i.ar.addr, axi_req_i.ar.size)),
+        //addr:   axi_req_i.ar.addr,  //PEZZOTTO
         atop:   '0,
         lock:   axi_req_i.ar.lock,
         strb:   '0,
@@ -243,6 +244,7 @@ module axi_to_detailed_mem #(
     end else if (axi_req_i.aw_valid && axi_req_i.w_valid) begin
       wr_meta_d = '{
         addr:   addr_t'(axi_pkg::aligned_addr(axi_req_i.aw.addr, axi_req_i.aw.size)),
+        //addr:   axi_req_i.aw.addr, //PEZZOTTO
         atop:   axi_req_i.aw.atop,
         lock:   axi_req_i.aw.lock,
         strb:   axi_req_i.w.strb,

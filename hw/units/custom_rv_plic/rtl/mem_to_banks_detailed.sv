@@ -126,6 +126,7 @@ module mem_to_banks_detailed #(
   // Handle requests.
   assign req_valid = req_i & gnt_o;
   for (genvar i = 0; unsigned'(i) < NumBanks; i++) begin : gen_reqs
+    //assign bank_req[i].addr  = addr_i + i * BytesPerBank; //PEZZOTTO
     assign bank_req[i].addr  = align_addr(addr_i) + i * BytesPerBank;
     assign bank_req[i].wdata = wdata_i[i*BitsPerBank+:BitsPerBank];
     assign bank_req[i].strb  = strb_i[i*BytesPerBank+:BytesPerBank];

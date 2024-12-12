@@ -30,8 +30,8 @@ module custom_top_wrapper # (
     parameter int unsigned AxiIdWidth       = 2,
     parameter int unsigned AxiUserWidth     = 2,
     parameter int unsigned RegDataWidth     = 32,
-    parameter bit          CutMemReqs       = 1'b0,     //da capire cosa significa
-    parameter bit          CutMemRsps       = 1'b0,     //da capire cosa significa
+    parameter bit          CutMemReqs       = 1'b0,     
+    parameter bit          CutMemRsps       = 1'b0,     
     
     parameter AXI_DATA_WIDTH    = 32,
     parameter AXI_ADDR_WIDTH    = 32,
@@ -48,7 +48,11 @@ module custom_top_wrapper # (
     parameter AXI_VALID_WIDTH   = 1,
     parameter AXI_READY_WIDTH   = 1,
     parameter AXI_LAST_WIDTH    = 1,
-    parameter AXI_RESP_WIDTH    = 2
+    parameter AXI_RESP_WIDTH    = 2,
+
+    //parameter [31:0] PLIC_BASE_ADDR = 32'h14000
+    parameter [31:0] PLIC_BASE_ADDR = 32'h4000000
+
 
 ) (
 
@@ -66,7 +70,22 @@ module custom_top_wrapper # (
     output [NumTarget-1:0]          irq_o,
     output [SRCW-1:0]               irq_id_o[NumTarget],
     output logic [NumTarget-1:0]    msip_o,
+
+
     
+    output logic [AXI_ADDR_WIDTH-1:0] req_addr_o ,
+    output logic [AXI_ADDR_WIDTH-1:0] req_write_o,
+    output logic [AXI_ADDR_WIDTH-1:0] req_wdata_o,
+    output logic [AXI_ADDR_WIDTH-1:0] req_wstrb_o,
+    output logic [AXI_ADDR_WIDTH-1:0] req_valid_o,
+    output logic [AXI_ADDR_WIDTH-1:0] rsp_rdata_o,
+    output logic [AXI_ADDR_WIDTH-1:0] rsp_error_o,
+    output logic [AXI_ADDR_WIDTH-1:0] rsp_ready_o,
+    
+
+    
+
+        
     ////////////////////////////
     //  Bus Array Interfaces  //
     ////////////////////////////
@@ -75,7 +94,7 @@ module custom_top_wrapper # (
     `DEFINE_AXI_SLAVE_PORTS(s) 
 );
 
-
+    
      // Define the req_t and resp_t type using axi_typedef.svh macro
     `AXI_TYPEDEF_ALL(
         axi,
@@ -97,8 +116,26 @@ module custom_top_wrapper # (
         logic [AXI_STRB_WIDTH-1:0]
     )
 
+
+    //reg_req_t reg_req_i;
+
     reg_req_t reg_req;
     reg_rsp_t reg_rsp;
+
+    // Create the modified_addr signal (shifted and subtracted)
+    logic [AXI_ADDR_WIDTH-1:0] modified_addr;
+
+    // Compute modified_addr: shift left by 2 and subtract PLIC_BASE_ADDR, then assign it to the PLIC input addr
+    //assign modified_addr = (reg_req.addr << 2) - PLIC_BASE_ADDR;
+    assign modified_addr = (reg_req.addr - {PLIC_BASE_ADDR });//>> 1};
+    //assign modified_addr = (reg_req.addr - 30'h00014000);
+    reg_req_t reg_req_modified;
+
+    assign reg_req_modified.addr   = modified_addr;
+    assign reg_req_modified.write  = reg_req.write;
+    assign reg_req_modified.wdata  = reg_req.wdata;
+    assign reg_req_modified.wstrb  = reg_req.wstrb;
+    assign reg_req_modified.valid  = reg_req.valid;
 
     rv_plic #(
     	.reg_req_t			(reg_req_t),
@@ -110,7 +147,7 @@ module custom_top_wrapper # (
     	.clk_i				(clk_i),
     	.rst_ni				(rst_ni),
     	
-    	.reg_req_i			(reg_req),
+    	.reg_req_i          (reg_req_modified),
     	.reg_rsp_o			(reg_rsp),
     	
     	// Interrupt Sources
@@ -146,6 +183,11 @@ module custom_top_wrapper # (
         .reg_id_o           ( ),
         .busy_o             ( )
     );
+
+    
+
+    //logic [31:0] pzzot;
+    //assign reg_req.addr = reg_req.addr & 32'hfff00fff;
 
     // Map OUTPUT signals 
     assign   axi_req.aw.id        = s_axi_awid;
@@ -188,6 +230,33 @@ module custom_top_wrapper # (
     assign   s_axi_rresp          = axi_rsp.r.resp;      
     assign   s_axi_rlast          = axi_rsp.r.last;      
     assign   s_axi_rvalid         = axi_rsp.r_valid;
+
+
+
+
+    assign  req_addr_o  = reg_req_modified.addr   ; //Segnali che escono dal convertitore ed entrano nel PLIC
+    assign  req_write_o = reg_req_modified.write  ; //Segnali che escono dal convertitore ed entrano nel PLIC
+    assign  req_wdata_o = reg_req_modified.wdata  ; //Segnali che escono dal convertitore ed entrano nel PLIC 
+    assign  req_wstrb_o = reg_req_modified.wstrb  ; //Segnali che escono dal convertitore ed entrano nel PLIC 
+    assign  req_valid_o = reg_req_modified.valid  ; //Segnali che escono dal convertitore ed entrano nel PLIC 
+    assign  rsp_rdata_o = reg_rsp.rdata  ; // Segnali che escono dal PLIC ed entrano nel convertitore 
+    assign  rsp_error_o = reg_rsp.error  ; // Segnali che escono dal PLIC ed entrano nel convertitore
+    assign  rsp_ready_o = reg_rsp.ready  ; // Segnali che escono dal PLIC ed entrano nel convertitore
+
+
+
+    //assign  reg_req.addr  = reg_req_i.addr & 32'hfff00fff;
+    //assign  reg_req.write = reg_req_i.write;
+    //assign  reg_req.wdata = reg_req_i.wdata;
+    //assign  reg_req.wstrb = reg_req_i.wstrb;
+    //assign  reg_req.valid = reg_req_i.valid;
+
+
+
+
+
+
+
 
 
 endmodule : custom_top_wrapper
