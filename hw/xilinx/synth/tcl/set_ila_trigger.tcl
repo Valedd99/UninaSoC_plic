@@ -23,6 +23,7 @@ set_property CONTROL.TRIGGER_POSITION   4096        [get_hw_ilas]
 #set_property TRIGGER_COMPARE_VALUE eq1'b1 [get_hw_probes xbar_to_plic_axi_arvalid -of_objects [get_hw_ilas]]
 #set_property TRIGGER_COMPARE_VALUE eq1'b1 [get_hw_probes xbar_to_plic_axi_rvalid -of_objects [get_hw_ilas]]
 
+#set_property TRIGGER_COMPARE_VALUE eq1'b1 [get_hw_probes irq_i -of_objects [get_hw_ilas]]
 
 
 ###########

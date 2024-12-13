@@ -301,7 +301,7 @@ module uninasoc (
         .clk_i          ( soc_clk    ),
         .rst_ni         ( vio_resetn ), //( sys_resetn ),
         .bootaddr_i     ( '0         ),
-        .irq_i          ( '0         ),
+        .irq_i          ( cv32e40_int_line        ),
 
         // Instruction AXI Port
         .rvm_socket_instr_axi_awid,
@@ -435,7 +435,7 @@ module uninasoc (
     axi4_full_uart axi4_full_uart_u (
         .clock_i        ( soc_clk                   ), // input wire s_axi_aclk
         .reset_ni       ( sys_resetn                ), // input wire s_axi_aresetn
-        .int_core_o     ( plic_int_line[2]          ), // TBD
+        .int_core_o     ( plic_int_line[3]          ), // TBD
         .int_xdma_o     (                           ), // TBD
         .int_ack_i      ( '0                        ), // TBD
         `ifdef EMBEDDED
@@ -584,7 +584,7 @@ module uninasoc (
         .freeze         ( '0                        ), // input [0:0]
         .generateout0   (                           ), // output [0:0]
         .generateout1   (                           ), // output [0:0]
-        .interrupt      ( plic_int_line[1]          ), // output [0:0]
+        .interrupt      ( plic_int_line[2]          ), // output [0:0]
         .pwm0           (                           ) // output [0:0]
     );
 
@@ -593,21 +593,57 @@ module uninasoc (
     //////////
 
     logic [31:0] plic_int_line;
-    
+    logic [31:0] cv32e40_int_line;
+    logic plic_int_irq_o;
+    assign cv32e40_int_line [11] = plic_int_irq_o;
+
+    //assign cv32e40_int_line[0]  = plic_int_irq_o;
+    //assign cv32e40_int_line[1]  = plic_int_irq_o;
+    //assign cv32e40_int_line[2]  = plic_int_irq_o;
+    //assign cv32e40_int_line[3]  = plic_int_irq_o;
+    //assign cv32e40_int_line[4]  = plic_int_irq_o;
+    //assign cv32e40_int_line[5]  = plic_int_irq_o;
+    //assign cv32e40_int_line[6]  = plic_int_irq_o;
+    //assign cv32e40_int_line[7]  = plic_int_irq_o;
+    //assign cv32e40_int_line[8]  = plic_int_irq_o;
+    //assign cv32e40_int_line[9]  = plic_int_irq_o;
+    //assign cv32e40_int_line[10] = plic_int_irq_o;
+    //assign cv32e40_int_line[11] = plic_int_irq_o;
+    //assign cv32e40_int_line[12] = plic_int_irq_o;
+    //assign cv32e40_int_line[13] = plic_int_irq_o;
+    //assign cv32e40_int_line[14] = plic_int_irq_o;
+    //assign cv32e40_int_line[15] = plic_int_irq_o;
+    //assign cv32e40_int_line[16] = plic_int_irq_o;
+    //assign cv32e40_int_line[17] = plic_int_irq_o;
+    //assign cv32e40_int_line[18] = plic_int_irq_o;
+    //assign cv32e40_int_line[19] = plic_int_irq_o;
+    //assign cv32e40_int_line[20] = plic_int_irq_o;
+    //assign cv32e40_int_line[21] = plic_int_irq_o;
+    //assign cv32e40_int_line[22] = plic_int_irq_o;
+    //assign cv32e40_int_line[23] = plic_int_irq_o;
+    //assign cv32e40_int_line[24] = plic_int_irq_o;
+    //assign cv32e40_int_line[25] = plic_int_irq_o;
+    //assign cv32e40_int_line[26] = plic_int_irq_o;
+    //assign cv32e40_int_line[27] = plic_int_irq_o;
+    //assign cv32e40_int_line[28] = plic_int_irq_o;
+    //assign cv32e40_int_line[29] = plic_int_irq_o;
+    //assign cv32e40_int_line[30] = plic_int_irq_o;
+    //assign cv32e40_int_line[31] = plic_int_irq_o;
     // Currently, this is the interrupt line mapping
-    // 0 - gpio_in mapping (for embedded only)
-    // 1 - timer interrupt
-    // 2 - UART (HPC implementation does not support interrupts yet)
+    // 0 - RESERVED
+    // 1 - gpio_in mapping (for embedded only)
+    // 2 - timer interrupt
+    // 3 - UART (HPC implementation does not support interrupts yet)
     // others - reserved
 
-    assign plic_int_line[31:3] = '0; 
+    assign plic_int_line[31:4] = '0; 
 
     custom_rv_plic custom_rv_plic_u (
         .clk_i          ( soc_clk                   ), // input wire s_axi_aclk
         .rst_ni         ( sys_resetn                ), // input wire s_axi_aresetn
         // AXI4 slave port (from xbar)
         .intr_src_i     ( plic_int_line             ),
-        .irq_o          (                           ),
+        .irq_o          ( plic_int_irq_o            ),
         .irq_id_o       (                           ),
         .msip_o         (                           ),
         .s_axi_awid     ( xbar_to_plic_axi_awid     ), // input wire [1 : 0] s_axi_awid
@@ -847,7 +883,7 @@ module uninasoc (
         .s_axi_rvalid   ( gpio_in_axilite_rvalid        ), // output wire s_axi_rvalid
         .s_axi_rready   ( gpio_in_axilite_rready        ), // input wire s_axi_rready
         .gpio_io_i      ( gpio_in_i                     ),
-        .ip2intc_irpt   ( plic_int_line[0]              )  // output wire [0:0] (interrupt)
+        .ip2intc_irpt   ( plic_int_line[1]              )  // output wire [0:0] (interrupt)
     );
 
 `endif
